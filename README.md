@@ -1,6 +1,19 @@
 # UE4UltimateSShooter
 Programar Games com C++ e a Unreal Engine
 
+#OBS: 
+- The Branch :
+	2 - Module Project Setup
+		Branch:	CameraSpringArm
+		Branch:	FollowCamera
+  		Branch:	ControllersAndInput
+  		Branch:	AddingAMesh
+  		Branch:	RotateCharacterToMovement
+  	3 - Module Animations
+  		Branch:	RunAnimations
+		Branch:	TrimmingAnimations	
+  		This Branch Have implemented animations and base weapon mechanics-> WeaponMechanics
+
 
 # Exemple of logs
 	UE_LOG(LogTemp, Warning, TEXT("BeginPlay() called!"));
