@@ -12,10 +12,23 @@
 #include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
-AShooterCharacter::AShooterCharacter():
+AShooterCharacter::AShooterCharacter() :
+	// Base rates for turning / looking up
 	BaseTurnRate(45.f),
 	BaseLookUpRate(45.f),
+	// turn rates for aiming/not aiming
+	HipTurnRate(90.f),
+	HipLookUpRate(90.f),
+	AimingTurnRate(20.f),
+	AimingLookUpRate(20.f),
+	// Mouse look sensitivity scale factors
+	MouseHipTurnRate(1.0f),
+	MouseHipLookUpRate(1.0f),
+	MouseAimingTurnRate(0.2f),
+	MouseAimingLookUpRate(0.2f),
+	// true when aimin the weapon
 	bAiming(false),
+	// Camera field of view values
 	CameraDefaultFOV(0.f), // Set in BeginPlay
 	CameraZoomedFOV(35.f),
 	CameraCurrentFOV(0.f),
@@ -96,6 +109,34 @@ void AShooterCharacter::TurnAtRate(float Rate)
 void AShooterCharacter::LookUpAtRate(float Rate)
 {
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds()); // deg/sec * sec/fram
+}
+
+void AShooterCharacter::Turn(float Value)
+{
+	float TurnScaleFactor{};
+	if (bAiming)
+	{
+		TurnScaleFactor = MouseAimingTurnRate;
+	}
+	else
+	{
+		TurnScaleFactor = MouseHipTurnRate;
+	}
+	AddControllerYawInput(Value * TurnScaleFactor);
+}
+
+void AShooterCharacter::LookUp(float Value)
+{
+	float LookUpScaleFactor{};
+	if (bAiming)
+	{
+		LookUpScaleFactor = MouseAimingLookUpRate;
+	}
+	else
+	{
+		LookUpScaleFactor = MouseHipLookUpRate;
+	}
+	AddControllerPitchInput(Value * LookUpScaleFactor);
 }
 
 void AShooterCharacter::FireWeapon()
@@ -227,16 +268,42 @@ void AShooterCharacter::AimingButtonReleased()
 	bAiming = false;
 }
 
-/** Handle interpolation for zoom when aiming */
-float AShooterCharacter::CameraInterpolateZoom(float CameraValueZoomed, float DeltaTime)
+void AShooterCharacter::CameraInterpolateZoom(float DeltaTime)
 {
-	CameraCurrentFOV = FMath::FInterpTo(
-		CameraCurrentFOV,
-		CameraValueZoomed,
-		DeltaTime,
-		ZoomInterpSpeed);
+	/** Set Current camera field of view */
+	if (bAiming)
+	{
+		// Interpolate to zoomed FOV
+		CameraCurrentFOV = FMath::FInterpTo(
+			CameraCurrentFOV,
+			CameraZoomedFOV,
+			DeltaTime,
+			ZoomInterpSpeed);
+	}
+	else
+	{
+		// Interpolate to default FOV
+		CameraCurrentFOV = FMath::FInterpTo(
+			CameraCurrentFOV,
+			CameraDefaultFOV,
+			DeltaTime,
+			ZoomInterpSpeed);
+	}
+	GetFollowCamera()->SetFieldOfView(CameraCurrentFOV);
+}
 
-	return CameraCurrentFOV;
+void AShooterCharacter::SetLooRates()
+{
+	if (bAiming)
+	{
+		BaseTurnRate = AimingTurnRate;
+		BaseLookUpRate = AimingLookUpRate;
+	}
+	else
+	{
+		BaseTurnRate = HipTurnRate;
+		BaseLookUpRate = HipLookUpRate;
+	}
 }
 
 // Called every frame
@@ -244,18 +311,11 @@ void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	/** Set Current camera field of view */
-	if (bAiming)
-	{
-		// Interpolate to zoomed FOV
-		CameraCurrentFOV = AShooterCharacter::CameraInterpolateZoom(CameraZoomedFOV, DeltaTime);
-	}
-	else
-	{
-		// Interpolate to default FOV
-		CameraCurrentFOV = AShooterCharacter::CameraInterpolateZoom(CameraDefaultFOV, DeltaTime);
-	}
-	GetFollowCamera()->SetFieldOfView(CameraCurrentFOV);
+	/** Handle interpolation for zoom when aiming */
+	CameraInterpolateZoom(DeltaTime);
+
+	/** Change look sensitivity based on aiming */
+	SetLooRates();
 
 }
 
@@ -269,8 +329,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("MoveRight", this, &AShooterCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("TurnRate", this, &AShooterCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AShooterCharacter::LookUpAtRate);
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("Turn", this, &AShooterCharacter::Turn);
+	PlayerInputComponent->BindAxis("LookUp", this, &AShooterCharacter::LookUp);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
