@@ -213,6 +213,45 @@ bool AShooterCharacter::GetBeamEndLocation(
 	const FVector& MuzzleSocketLocation, 
 	FVector& OutBeamLocation)
 {
+	// Check for crosshair trace hit
+	FHitResult CrosshairHitResult;
+	bool bCrosshairHit = TraceUnderCrosshairs(CrosshairHitResult, OutBeamLocation);
+
+	if (bCrosshairHit)
+	{
+		// Tentative bem location - still need to trace from gun
+		OutBeamLocation = CrosshairHitResult.Location;
+
+	}
+	else // no crosshair trace hit
+	{
+		// OutBeamLocation is the End location for the line trace
+
+	}
+
+	// Perform a second trace, this time from the gun barrel
+	FHitResult WeaponTraceHit;
+	const FVector WeaponTraceStart{ MuzzleSocketLocation };
+
+	const FVector StartEnd{ OutBeamLocation - MuzzleSocketLocation };
+
+	// const FVector WeaponTarceEnd{ OutBeamLocation };
+	const FVector WeaponTarceEnd{ MuzzleSocketLocation + StartEnd };
+
+	GetWorld()->LineTraceSingleByChannel(
+		WeaponTraceHit,
+		WeaponTraceStart,
+		WeaponTarceEnd,
+		ECollisionChannel::ECC_Visibility);
+	if (WeaponTraceHit.bBlockingHit) // object between barrel and BeamEndPoint?
+	{
+		OutBeamLocation = WeaponTraceHit.Location;
+		return true;
+	}
+
+	return false;
+
+	/*
 	// Get current size of the viewport
 	FVector2D ViewportSize;
 	if (GEngine && GEngine->GameViewport)
@@ -273,6 +312,7 @@ bool AShooterCharacter::GetBeamEndLocation(
 	}
 
 	return false;
+	*/
 }
 
 void AShooterCharacter::AimingButtonPressed()
@@ -452,7 +492,7 @@ void AShooterCharacter::AutoFireReset()
 	}
 }
 
-bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult)
+bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& OutHitLocation)
 {
 	// Get Viewport size
 	FVector2D ViewportSize;
@@ -478,14 +518,15 @@ bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult)
 		// Trace from Crosshair world location outward
 		const FVector Start{ CrosshairWorldPosition };
 		const FVector End{ Start + CrosshairWorldDirection * 50'000.f };
+		OutHitLocation = End;
 		GetWorld()->LineTraceSingleByChannel(
 			OutHitResult,
 			Start,
 			End,
 			ECollisionChannel::ECC_Visibility);
-
 		if (OutHitResult.bBlockingHit)
 		{
+			OutHitLocation = OutHitResult.Location;
 			return true;
 		}
 	}
@@ -507,7 +548,8 @@ void AShooterCharacter::Tick(float DeltaTime)
 	CalculateCrosshairSpread(DeltaTime);
 
 	FHitResult ItemTraceResult;
-	TraceUnderCrosshairs(ItemTraceResult);
+	FVector OutHitLocation;
+	TraceUnderCrosshairs(ItemTraceResult, OutHitLocation);
 	if (ItemTraceResult.bBlockingHit)
 	{
 		AItem* HitItem = Cast<AItem>(ItemTraceResult.Actor);
