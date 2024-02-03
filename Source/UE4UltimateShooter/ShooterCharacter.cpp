@@ -47,7 +47,9 @@ AShooterCharacter::AShooterCharacter() :
 	// Automatic fire variables
 	AutomaticFireRate(0.1f),
 	bShouldFire(true),
-	bFireButtonPressed(false)
+	bFireButtonPressed(false),
+	// Item trace variables
+	bShouldTraceForTtems(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -533,6 +535,25 @@ bool AShooterCharacter::TraceUnderCrosshairs(FHitResult& OutHitResult, FVector& 
 	return false;
 }
 
+void AShooterCharacter::TraceForItems()
+{
+	if (bShouldTraceForTtems)
+	{
+		FHitResult ItemTraceResult;
+		FVector OutHitLocation;
+		TraceUnderCrosshairs(ItemTraceResult, OutHitLocation);
+		if (ItemTraceResult.bBlockingHit)
+		{
+			AItem* HitItem = Cast<AItem>(ItemTraceResult.Actor);
+			if (HitItem && HitItem->GetPickupWidget())
+			{
+				// Show Item's Pickup Widget
+				HitItem->GetPickupWidget()->SetVisibility(true);
+			}
+		}
+	}
+}
+
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 {
@@ -546,19 +567,9 @@ void AShooterCharacter::Tick(float DeltaTime)
 
 	/** Calculate crosshair spread multiplier */
 	CalculateCrosshairSpread(DeltaTime);
-
-	FHitResult ItemTraceResult;
-	FVector OutHitLocation;
-	TraceUnderCrosshairs(ItemTraceResult, OutHitLocation);
-	if (ItemTraceResult.bBlockingHit)
-	{
-		AItem* HitItem = Cast<AItem>(ItemTraceResult.Actor);
-		if (HitItem && HitItem->GetPickupWidget())
-		{
-			// Show Item's Pickup Widget
-			HitItem->GetPickupWidget()->SetVisibility(true);
-		}
-	}
+	
+	/** Check OverlappedItemCount, then trace for items */
+	TraceForItems();
 
 }
 
@@ -591,5 +602,19 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 float AShooterCharacter::GetCrosshairSpreadMultiplier() const
 {
 	return CrosshairSpreadMultiplier;
+}
+
+void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount)
+{
+	if (OverlappedItemCount + Amount <= 0)
+	{
+		OverlappedItemCount = 0;
+		bShouldTraceForTtems = false;
+	}
+	else
+	{
+		OverlappedItemCount += Amount;
+		bShouldTraceForTtems = true;
+	}
 }
 
