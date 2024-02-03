@@ -13,7 +13,7 @@ AItem::AItem()
 	ItemMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemMesh"));
 	SetRootComponent(ItemMesh);
 
-	CollisionBox = CreateDefaultSubobject<UBoxComponent>((TEXT("CollisionBox"));
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	CollisionBox->SetupAttachment(ItemMesh);
 
 }
