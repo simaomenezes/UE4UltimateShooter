@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
+//#include "Weapon.h"
 
 UCLASS()
 class UE4ULTIMATESHOOTER_API AShooterCharacter : public ACharacter
@@ -83,6 +84,8 @@ protected:
 
 	/** Trace for items if OverlappedItemCount > 0 */
 	void TraceForItems();
+
+	void SpawnDefaultWeapon();
 
 public:	
 	// Called every frame
@@ -224,6 +227,14 @@ private:
 	/** The AItem we hit last frame */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
 	class AItem* TraceHitItemLastFrame;
+
+	/** Currently equipped weapon */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	class AWeapon* EquippedWeapon;
+
+	/** Set this in Blueprint for the default Weapon class */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AWeapon> DefaultWeaponClass;
 
 
 public:
