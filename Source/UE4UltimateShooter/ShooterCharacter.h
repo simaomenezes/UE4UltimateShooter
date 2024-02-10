@@ -279,4 +279,6 @@ public:
 
 	FVector GetCameraInterpLocation();
 
+	void GetPickupItem(AItem* Item);
+
 };
