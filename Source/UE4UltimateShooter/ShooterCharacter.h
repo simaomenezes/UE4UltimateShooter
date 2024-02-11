@@ -5,7 +5,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
-//#include "Weapon.h"
+
+UENUM(BlueprintType)
+enum class EAmmoType : uint8
+{
+	EAT_9mm UMETA(DisplayName = "9mm"),
+	EAT_AR UMETA(DisplayName = "AssultRifle"),
+
+	EAT_MAX UMETA(DisplayName = "DefaultMax")
+};
 
 UCLASS()
 class UE4ULTIMATESHOOTER_API AShooterCharacter : public ACharacter
@@ -99,6 +107,9 @@ protected:
 
 	/** Drops currently equipped Weapon and Equips TraceHitItem */
 	void SwapWeapon(AWeapon* WeaponToSwap);
+
+	/** Initialize the Ammo Map with ammo values */
+	void InitializeAmmoMap();
 
 public:	
 	// Called every frame
@@ -259,6 +270,21 @@ private:
 	/** Distance upward from the camera for the interp destination */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
 	float CameraInterElevation;
+
+	// ##### AMMO Weapon
+	/** Map to keep track of ammo of the different ammo types */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	TMap<EAmmoType, int32> AmmoMap;
+
+	/** Starting amount of 9mm ammo */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	int32 Starting9mmAmmo;
+
+	/** Starting amount of AR ammo */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	int32 StartingARAmmo;
+
+	// ##### AMMO Weapon
 
 public:
 	/** Returns CameraBoom subobject */
