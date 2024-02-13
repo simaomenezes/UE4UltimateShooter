@@ -15,6 +15,17 @@ enum class EAmmoType : uint8
 	EAT_MAX UMETA(DisplayName = "DefaultMax")
 };
 
+UENUM(BlueprintType)
+enum class ECombatState : uint8
+{
+	ECS_Unoccupied UMETA(DisplayName = "Unoccupied"),
+	ECS_FireTimerInPorgress UMETA(DisplayName = "FireTimerInPorgress"),
+	ECS_Reloading UMETA(DisplayName = "Reloading"),
+
+	ECS_MAX UMETA(DisplayName = "DefaultMax")
+
+};
+
 UCLASS()
 class UE4ULTIMATESHOOTER_API AShooterCharacter : public ACharacter
 {
@@ -113,6 +124,13 @@ protected:
 
 	/** Check to make sure our weapon has ammo */
 	bool WeaponHasAmmo();
+
+	void PlayFireSound();
+
+	void SendBullet();
+
+	void PlayGunFireMontage();
+
 
 public:	
 	// Called every frame
@@ -288,6 +306,10 @@ private:
 	int32 StartingARAmmo;
 
 	// ##### AMMO Weapon
+
+	/** Combat STate, can only fire or reload if Unoccupied */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	ECombatState CombatState;
 
 public:
 	/** Returns CameraBoom subobject */
