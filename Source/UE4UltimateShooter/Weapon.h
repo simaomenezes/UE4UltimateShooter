@@ -30,36 +30,44 @@ public:
 protected:
 	void StopFalling();
 
-	/** Ammo count for this weapon*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AlloPrivateAccess = "true"))
-	int32 Ammo;
-
-	/** The type of weapon */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AlloPrivateAccess = "true"))
-	EWeaponType WeaponType;
-
-	/** The type of ammo for this weapon */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AlloPrivateAccess = "true"))
-	EAmmoType AmmoType;
-
-	/** FName for reload montage section */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AlloPrivateAccess = "true"))
-	FName ReloadMontageSection;
-
 private:
 	FTimerHandle ThrowWeaponTimer;
 	float ThrowWeaponTime;
 	bool bFalling;
+
+	/** Ammo count for this weapon*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	int32 Ammo;
+
+	/** The type of weapon */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	EWeaponType WeaponType;
+
+	/** The type of ammo for this weapon */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	EAmmoType AmmoType;
+
+	/** FName for reload montage section */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	FName ReloadMontageSection;
+
+	/**  Maximun Ammo that our weapon can hold */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	int32 MagazineCapacity;
 
 public:
 	/** Adds an impulse to the weapon */
 	void ThrowWeapon();
 
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
+	FORCEINLINE int32 GetMagazineCapacity() const { return MagazineCapacity; }
+
 	/** Called from Character class when firing weapon */
 	void DecrementAmmo();
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
 	FORCEINLINE FName GetReloadMontageSection() const { return ReloadMontageSection; }
+
+	void ReloadAmmo(int32 Amount);
 };
