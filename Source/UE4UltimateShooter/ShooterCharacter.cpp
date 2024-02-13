@@ -102,6 +102,8 @@ void AShooterCharacter::BeginPlay()
 
 	// Spawn the default weapon and equip it
 	EquipWeapon(SpawnDefaultWeapon());
+
+	InitializeAmmoMap();
 	
 }
 
@@ -868,4 +870,3 @@ void AShooterCharacter::GetPickupItem(AItem* Item)
 		SwapWeapon(Weapon);
 	}
 }
-
