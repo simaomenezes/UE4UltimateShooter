@@ -125,11 +125,16 @@ protected:
 	/** Check to make sure our weapon has ammo */
 	bool WeaponHasAmmo();
 
+	/** Fire weapon function */
 	void PlayFireSound();
-
 	void SendBullet();
-
 	void PlayGunFireMontage();
+
+	/** Bound to R key and Gamepad Face Button Left */
+	void ReloadButtonPressed();
+
+	/** Handle reloading of the weapon */
+	void ReloadWeapon();
 
 
 public:	
@@ -310,6 +315,13 @@ private:
 	/** Combat STate, can only fire or reload if Unoccupied */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	ECombatState CombatState;
+
+	/** Montage for reload animation */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* ReloadMonatge;
+
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
 
 public:
 	/** Returns CameraBoom subobject */
