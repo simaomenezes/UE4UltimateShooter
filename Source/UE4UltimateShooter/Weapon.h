@@ -56,6 +56,7 @@ private:
 	int32 MagazineCapacity;
 
 	/** true when moving the clip while reloading */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	bool bMovingClip;
 
 	/** Name for the clip bone */
