@@ -355,4 +355,6 @@ public:
 
 	void GetPickupItem(AItem* Item);
 
+	FORCEINLINE ECombatState GetCombatState() const { return CombatState; }
+
 };

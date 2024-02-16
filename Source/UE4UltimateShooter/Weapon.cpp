@@ -71,6 +71,11 @@ void AWeapon::ReloadAmmo(int32 Amount)
 
 }
 
+bool AWeapon::ClipsFull()
+{
+	return Ammo >= MagazineCapacity;
+}
+
 void AWeapon::StopFalling()
 {
 	bFalling = false;
