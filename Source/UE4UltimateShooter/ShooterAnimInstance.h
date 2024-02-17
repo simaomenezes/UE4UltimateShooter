@@ -107,4 +107,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Lean, meta = (AllowPrivateAccess = "true"))
 	float YawDelta;
 
+	/** True when Crouching */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Crouching, meta = (AllowPrivateAccess = "true"))
+	bool bCrouching;
+
 };

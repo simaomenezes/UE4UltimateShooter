@@ -21,7 +21,8 @@ UShooterAnimInstance::UShooterAnimInstance() :
 	Pitch(0.f),
 	bReloading(false),
 	OffsetState(EOffsetState::EOS_Hip),
-	YawDelta(0.f)
+	YawDelta(0.f),
+	bCrouching(false)
 {
 
 }
@@ -34,6 +35,7 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 	}
 	if (ShooterCharacter)
 	{
+		bCrouching = ShooterCharacter->GetCrouching();
 		bReloading = ShooterCharacter->GetCombatState() == ECombatState::ECS_Reloading;
 
 		// Get the lateral speed of the character from velocity
@@ -139,8 +141,6 @@ void UShooterAnimInstance::TurnInPlace()
 				RootYawOffset > 0 ? RootYawOffset -= YawExcess : RootYawOffset += YawExcess;
 			}
 		}
-		// if (GEngine) GEngine->AddOnScreenDebugMessage(1, -1, FColor::Blue, FString::Printf(TEXT("CharacterYaw: %f"), CharacterYaw));
-		// if (GEngine) GEngine->AddOnScreenDebugMessage(2, -1, FColor::Red, FString::Printf(TEXT("RootYawOffset: %f"), RootYawOffset));
 	}
 }
 
@@ -153,16 +153,12 @@ void UShooterAnimInstance::Lean(float DeltaTime)
 	const FRotator Delta{ UKismetMathLibrary::NormalizedDeltaRotator(CharacterRotation, CharacterRotationLastFrame) };
 
 	const float Target{ Delta.Yaw / DeltaTime };
-	/*
+
+	/* old
 	const float Interp{ FMath::FInterpTo(YawDelta, Target, DeltaTime, 6.f) };
 	YawDelta = FMath::Clamp(Interp, -90.f, 90.f);
 	*/
 
 	const float Interp{ FMath::FInterpTo(YawDelta, Target, DeltaTime, 1.f) };
 	YawDelta = FMath::Clamp(Interp, -80.f, 80.f);
-
-	if (GEngine) GEngine->AddOnScreenDebugMessage(2, -1, FColor::Cyan, FString::Printf(TEXT("YawDelta: %f"), YawDelta));
-
-	if (GEngine) GEngine->AddOnScreenDebugMessage(2, -1, FColor::Emerald, FString::Printf(TEXT("Delta: %f"), Delta.Yaw));
-
 }
